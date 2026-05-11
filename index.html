@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Para Nuvsita</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Dancing+Script:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --rose: #c0415a;
+      --blush: #f7d6df;
+      --cream: #fdf6ee;
+      --gold: #c9a96e;
+      --deep: #3a1020;
+      --soft: #f0e0e8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Cormorant Garamond', serif;
+      background: var(--cream);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Petals background */
+    .petals-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .petal {
+      position: absolute;
+      top: -40px;
+      font-size: 1.4em;
+      animation: fall linear infinite;
+      opacity: 0.6;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* ── PORTADA ── */
+    .portada {
+      width: 340px;
+      height: 520px;
+      background: linear-gradient(160deg, #fff5f8 0%, #fde8ef 60%, #f7d6df 100%);
+      border-radius: 4px 20px 20px 4px;
+      position: relative;
+      box-shadow:
+        -8px 0 0 0 var(--gold),
+        0 25px 60px rgba(192,65,90,0.25),
+        inset 0 0 80px rgba(255,255,255,0.6);
+      cursor: pointer;
+      transition: transform 0.4s cubic-bezier(.34,1.56,.64,1), box-shadow 0.4s;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .portada::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent, transparent 29px,
+        rgba(192,65,90,0.08) 29px, rgba(192,65,90,0.08) 30px
+      );
+      border-radius: inherit;
+    }
+
+    .portada::after {
+      content: '';
+      position: absolute;
+      left: 20px;
+      top: 0; bottom: 0;
+      width: 1px;
+      background: rgba(201,169,110,0.4);
+    }
+
+    .portada:hover {
+      transform: scale(1.03) rotate(-1deg);
+      box-shadow: -8px 0 0 0 var(--gold), 0 35px 80px rgba(192,65,90,0.35);
+    }
+
+    .portada-inner {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 25px;
+      gap: 18px;
+    }
+
+    .portada-deco-top {
+      font-size: 2em;
+      letter-spacing: 8px;
+      color: var(--gold);
+      opacity: 0.8;
+    }
+
+    .portada-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: 3.6em;
+      color: var(--rose);
+      text-align: center;
+      line-height: 1.1;
+      text-shadow: 0 2px 12px rgba(192,65,90,0.18);
+    }
+
+    .portada-subtitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.95em;
+      color: var(--gold);
+      font-style: italic;
+      letter-spacing: 2px;
+      text-align: center;
+    }
+
+    .portada-label {
+      background: white;
+      border: 1.5px solid var(--gold);
+      border-radius: 50px;
+      padding: 10px 22px;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.95em;
+      color: var(--rose);
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(192,65,90,0.1);
+    }
+
+    .portada-from {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.3em;
+      color: var(--rose);
+      opacity: 0.8;
+    }
+
+    .click-hint {
+      position: absolute;
+      bottom: 18px;
+      left: 50%; transform: translateX(-50%);
+      font-size: 0.72em;
+      color: var(--gold);
+      letter-spacing: 2px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse { 0%,100%{opacity:.5} 50%{opacity:1} }
+
+    /* ── MODAL ── */
+    #modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(58,16,32,0.55);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.4s ease;
+    }
+
+    #modal.open { display: flex; }
+
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+    .book {
+      width: min(900px, 96vw);
+      height: min(600px, 90vh);
+      display: flex;
+      border-radius: 6px 16px 16px 6px;
+      overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.4);
+      position: relative;
+    }
+
+    /* Spine */
+    .spine {
+      width: 28px;
+      min-width: 28px;
+      background: linear-gradient(180deg, var(--gold) 0%, #a07840 50%, var(--gold) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      writing-mode: vertical-rl;
+      font-family: 'Dancing Script', cursive;
+      font-size: 0.85em;
+      color: white;
+      letter-spacing: 3px;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Pages container */
+    .pages-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page {
+      position: absolute;
+      inset: 0;
+      display: none;
+      background: linear-gradient(135deg, #fff9fb 0%, #fff5f8 100%);
+    }
+
+    .page.active { display: flex; animation: pageIn 0.5s cubic-bezier(.4,0,.2,1); }
+
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateX(30px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .page::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent, transparent 31px,
+        rgba(192,65,90,0.06) 31px, rgba(192,65,90,0.06) 32px
+      );
+      pointer-events: none;
+    }
+
+    /* Left margin line */
+    .page-left::after {
+      content: '';
+      position: absolute;
+      left: 48px; top: 0; bottom: 0;
+      width: 1px;
+      background: rgba(201,169,110,0.35);
+    }
+
+    .page-half {
+      width: 50%;
+      height: 100%;
+      padding: 40px 36px 40px 36px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--blush) transparent;
+    }
+
+    .page-half:first-child {
+      border-right: 1px solid rgba(192,65,90,0.15);
+    }
+
+    /* Single page (full width) */
+    .page-full {
+      width: 100%;
+      padding: 40px 60px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35em;
+      color: var(--rose);
+      text-align: center;
+      border-bottom: 1px solid rgba(201,169,110,0.4);
+      padding-bottom: 8px;
+      width: 100%;
+    }
+
+    .poem {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.05em;
+      color: #444;
+      line-height: 1.9;
+      text-align: center;
+      white-space: pre-line;
+    }
+
+    .poem em {
+      color: var(--rose);
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    p {
+      font-size: 1.05em;
+      line-height: 1.75;
+      color: #3a2030;
+    }
+
+    .quote {
+      background: linear-gradient(135deg, #fff0f4, #fff8fb);
+      border-left: 3px solid var(--gold);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: var(--rose);
+      font-size: 1.05em;
+      line-height: 1.7;
+    }
+
+    .firma {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.6em;
+      color: var(--rose);
+      text-align: right;
+      margin-top: auto;
+    }
+
+    .deco-row {
+      text-align: center;
+      font-size: 1.4em;
+      letter-spacing: 6px;
+      color: var(--gold);
+      opacity: 0.7;
+    }
+
+    /* Image page */
+    .img-upload-area {
+      width: 100%;
+      aspect-ratio: 4/3;
+      border: 2px dashed rgba(192,65,90,0.3);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color 0.3s, background 0.3s;
+      background: rgba(255,245,248,0.5);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .img-upload-area:hover {
+      border-color: var(--rose);
+      background: rgba(255,245,248,0.9);
+    }
+
+    .img-upload-area img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .img-upload-area .upload-hint {
+      font-size: 2.5em;
+      color: var(--rose);
+      opacity: 0.4;
+    }
+
+    .img-upload-area .upload-text {
+      font-style: italic;
+      color: var(--rose);
+      opacity: 0.5;
+      font-size: 0.85em;
+      margin-top: 8px;
+    }
+
+    input[type="file"] { display: none; }
+
+    .img-caption {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.1em;
+      color: var(--gold);
+      text-align: center;
+    }
+
+    /* Navigation */
+    .nav {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      z-index: 10;
+    }
+
+    .nav-btn {
+      background: white;
+      border: 1.5px solid rgba(192,65,90,0.3);
+      color: var(--rose);
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1em;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+      box-shadow: 0 2px 10px rgba(192,65,90,0.15);
+    }
+
+    .nav-btn:hover { background: var(--rose); color: white; }
+    .nav-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+
+    .page-indicator {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.85em;
+      color: var(--gold);
+      letter-spacing: 2px;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: white;
+      border: 1px solid rgba(192,65,90,0.25);
+      color: var(--rose);
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 0.75em;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 20;
+      transition: all 0.2s;
+    }
+
+    .close-btn:hover { background: var(--rose); color: white; }
+
+    .page-num {
+      position: absolute;
+      bottom: 14px;
+      right: 20px;
+      font-size: 0.7em;
+      color: var(--gold);
+      font-family: 'Cormorant Garamond', serif;
+    }
+
+    /* Gallery grid */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      width: 100%;
+    }
+
+    .gallery-slot {
+      aspect-ratio: 1;
+      border: 2px dashed rgba(192,65,90,0.25);
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      position: relative;
+      overflow: hidden;
+      background: rgba(255,245,248,0.4);
+      transition: border-color 0.3s;
+    }
+
+    .gallery-slot:hover { border-color: var(--rose); }
+
+    .gallery-slot img {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .gallery-slot .g-hint { font-size: 1.8em; color: var(--rose); opacity: 0.35; }
+
+    @media (max-width: 680px) {
+      .page-half { width: 100%; padding: 24px 20px; }
+      .page { flex-direction: column; }
+      .page-half:first-child { border-right: none; border-bottom: 1px solid rgba(192,65,90,0.15); height: 50%; }
+      .page-full { padding: 24px 20px; }
+      .book { border-radius: 4px 10px 10px 4px; }
+      .spine { width: 18px; min-width: 18px; font-size: 0.65em; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Floating petals -->
+<div class="petals-bg" id="petals"></div>
+
+<!-- PORTADA -->
+<div class="portada" id="portada" onclick="openBook()">
+  <div class="portada-inner">
+    <div class="portada-deco-top">✦ ✦ ✦</div>
+    <div class="portada-title">Nuvsita</div>
+    <div class="portada-subtitle">— un cuaderno para ti —</div>
+    <div class="portada-label">
+      Algunas cosas que quería decirte<br>desde que te conocí...
+    </div>
+    <div class="deco-row" style="font-size:1.6em; letter-spacing:10px;">🌹 💌 🌹</div>
+    <div class="portada-from">De: Jesús ✦</div>
+  </div>
+  <div class="click-hint">✦ TOCA PARA ABRIR ✦</div>
+</div>
+
+<!-- BOOK MODAL -->
+<div id="modal">
+  <div class="book">
+    <div class="spine">✦ Jesús</div>
+    <div class="pages-container" id="pagesContainer">
+
+      <!-- PAGE 1: Tus Ojos -->
+      <div class="page active" id="page-1">
+        <div class="page-half page-left">
+          <h2>✦ Tus ojos ✦</h2>
+          <div class="poem">
+Hay cosas en este mundo
+que no necesitan explicación,
+solo sentirlas
+
+tus ojitoss nuv son una de ellas.
+
+Tienen algo que no sé nombrar,
+un brillo que no pide permiso
+para quedarse en mi memoria
+mucho tiempo después
+de que cerraste la pantalla.
+
+<em>Como si llevaran adentro
+algo que el lenguaje no alcanza.</em>
+          </div>
+        </div>
+        <div class="page-half">
+          <h2>✦ Lo que vi ✦</h2>
+          <p>Cuando te vi por primera vez, lo primero que noté fueron tus ojos. No sé si la forma en que miraban, o la luz que parece vivir dentro de ellos, pero hay algo ahí que me detuvo por completo.</p>
+          <div class="quote">
+            "Con solo mirarte me hiciste sentir que el mundo es un lugar mucho más bonito."
+          </div>
+          <p>No me hace falta estar cerca para saberlo. Eso se siente incluso a través de una pantalla, incluso a kilómetros de distancia.</p>
+          <div class="deco-row">✦ ✦ ✦</div>
+          <div class="firma">Con admiración,<br>Jesús</div>
+        </div>
+        <div class="page-num">1</div>
+      </div>
+
+      <!-- PAGE 2: Tu Voz -->
+      <div class="page" id="page-2">
+        <div class="page-half page-left">
+          <h2>✦ Tu voz ✦</h2>
+          <div class="poem">
+Hay voces que solo escuchas
+y hay voces que se quedan.
+
+La tuya se queda.
+
+Tiene esa calidez suave
+que hace que cualquier cosa
+suene importante,
+que hace que quiera escucharte
+hablar de lo que sea —
+
+de tu día, de tus sueños,
+de lo que te preocupa,
+de lo que te hace reír.
+
+<em>Tu voz es la voz que querría escuchar siempre.</em>
+          </div>
+        </div>
+        <div class="page-half">
+          <h2>✦ Tu forma de ser ✦</h2>
+          <p>No es solo cómo te ves, Nuvsita. Es la forma en que hablas, la manera en que eres. Hay una autenticidad en ti que es muy difícil de encontrar.</p>
+          <div class="quote">
+            "La gente bonita por dentro irradia algo diferente. Tú lo irradias. Y es lo primero que se nota."
+          </div>
+          <p>Tienes una energía que no necesita esfuerzo — simplemente existe, y hace que quienes están alrededor se sientan bien. Eso no es algo que cualquiera tenga.</p>
+          <div class="deco-row">🌹 🌹 🌹</div>
+        </div>
+        <div class="page-num">2</div>
+      </div>
+
+      <!-- PAGE 3: Poems -->
+      <div class="page" id="page-3">
+        <div class="page-half page-left">
+          <h2>✦ Pequeños detalles ✦</h2>
+          <div class="poem">
+Me gustan tus pequeños detalles —
+
+la forma en que ríes,
+el tono que usas cuando algo
+te parece increíble,
+la manera en que hablas.
+
+Todo eso que quizás
+ni tú misma notas
+es exactamente lo que
+hace que seas tan difícil
+de olvidar.
+
+<em>Nuvsita,
+eres la personita que me alegra el día
+solo con existir.</em>
+          </div>
+        </div>
+        <div class="page-half">
+          <h2>✦ Sin buscarlo ✦</h2>
+          <div class="poem">
+No esperaba que
+conocerte fuera a sentirse así tan lindo
+
+es como cuando descubres
+una canción nueva
+y de repente quieres
+escucharla en repetir y repetir,
+sin cansarte,
+sin que pierda lo que te atrapó.
+
+Así se siente
+hablar contigo.
+
+<em>Como algo que no planeé
+pero que me alegra mucho
+haber encontrado.</em>
+          </div>
+          <div class="deco-row" style="margin-top: auto;">✦ ✦ ✦</div>
+        </div>
+        <div class="page-num">3</div>
+      </div>
+<div class="page" id="page-4">
+  <div class="page-full">
+    <h2>✦ Nuestros momentos ✦</h2>
+    <p style="text-align:center; font-style:italic; color: var(--gold); font-size:0.9em;">
+      Recuerdos guardados en la nube 🌹
+    </p>
+    
+    <div class="gallery-grid">
+      <div class="gallery-slot">
+        <img src="https://github.com/jesuxzx/Momentos-/raw/ae553b2810bdaa6e8a60c24e083a8f4c4f9cac90/Screenshot_2026-04-19-12-16-07-027_com.dts.freefireth.jpg" alt="Momento 1">
+      </div>
+      
+      <div class="gallery-slot">
+        <img src="https://github.com/jesuxzx/Momentos-/raw/ae553b2810bdaa6e8a60c24e083a8f4c4f9cac90/Screenshot_2026-04-22-00-09-15-025_com.dts.freefireth.jpg" alt="Momento 2">
+      </div>
+      
+      <div class="gallery-slot">
+        <img src="https://github.com/jesuxzx/Momentos-/raw/ae553b2810bdaa6e8a60c24e083a8f4c4f9cac90/Screenshot_2026-04-30-22-07-30-934_com.dts.freefireth.jpg" alt="Momento 3">
+      </div>
+      
+      <div class="gallery-slot">
+        <img src="https://github.com/jesuxzx/Momentos-/raw/ae553b2810bdaa6e8a60c24e083a8f4c4f9cac90/Screenshot_2026-05-09-12-40-09-821_com.dts.freefireth.jpg" alt="Momento 4">
+      </div>
+    </div>
+    
+    <div class="img-caption">los momentos que guardo contigo 🌹</div>
+  </div>
+  <div class="page-num">4</div>
+</div>
+
+<style>
+  /* Asegúrate de que las imágenes llenen el cuadro correctamente */
+  .gallery-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Esto evita que la imagen se estire feo */
+    border-radius: 8px;
+    display: block;
+  }
+</style>
+
+      <!-- PAGE 5: Final -->
+      <div class="page" id="page-5">
+        <div class="page-half page-left">
+          <h2>✦ Solo quería decirte ✦</h2>
+          <div class="poem">
+Hay cosas que se sienten
+antes de poder explicarlas.
+
+Conocerte ha sido
+una de esas cosas.
+
+No sé con exactitud
+qué es lo que tienes,
+pero sé que cuando hablas
+el mundo se vuelve
+un poco más interesante,
+
+y cuando ríes
+uno quiere ser la razón
+de que vuelvas a hacerlo.
+
+<em>No sé cómo decirlo mejor
+que así de simple:
+me alegra mucho
+que existas.</em>
+          </div>
+        </div>
+        <div class="page-half">
+          <h2>✦ Para Nuvsita ✦</h2>
+          <p>Esto no es solo un cuaderno. Es una forma de decirte que me importa lo que eres, cómo eres, cómo me hace sentir hablar contigo.</p>
+          <div class="quote">
+            "Eres la personita que llego a mi vida y sin pedirlo, sin avisar, la hiciste más bonita. Tú eres muy importante para mí."
+          </div>
+          <p>Gracias por existir, Nuvsita. Gracias por ser exactamente como eres. Ojalá sepas que tienes algo muy especial y que yo me di cuenta desde el primer momento.</p>
+          <div class="deco-row">🌹 💌 🌹</div>
+          <div class="firma" style="font-size:2em;">Jesús ✦</div>
+        </div>
+        <div class="page-num">5</div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="nav">
+        <button class="nav-btn" id="prevBtn" onclick="changePage(-1)" disabled>‹</button>
+        <span class="page-indicator" id="pageIndicator">1 / 5</span>
+        <button class="nav-btn" id="nextBtn" onclick="changePage(1)">›</button>
+      </div>
+
+      <button class="close-btn" onclick="closeBook()">✕</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Petals
+  const emojis = ['🌸','🌹','✦','💌','🌺'];
+  const petalsEl = document.getElementById('petals');
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = (6 + Math.random() * 10) + 's';
+    p.style.animationDelay = (Math.random() * 10) + 's';
+    p.style.fontSize = (0.9 + Math.random() * 1.2) + 'em';
+    petalsEl.appendChild(p);
+  }
+
+  // Book
+  let currentPage = 1;
+  const totalPages = 5;
+
+  function openBook() {
+    document.getElementById('portada').style.display = 'none';
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeBook() {
+    document.getElementById('modal').classList.remove('open');
+    document.getElementById('portada').style.display = 'block';
+  }
+
+  function changePage(dir) {
+    const old = document.getElementById('page-' + currentPage);
+    currentPage = Math.max(1, Math.min(totalPages, currentPage + dir));
+    old.classList.remove('active');
+    document.getElementById('page-' + currentPage).classList.add('active');
+    document.getElementById('prevBtn').disabled = currentPage === 1;
+    document.getElementById('nextBtn').disabled = currentPage === totalPages;
+    document.getElementById('pageIndicator').textContent = currentPage + ' / ' + totalPages;
+  }
+
+  // Image upload
+  function triggerUpload(id) {
+    document.getElementById(id).click();
+  }
+
+  function loadImg(input, imgId) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.getElementById(imgId);
+        img.src = e.target.result;
+        img.style.display = 'block';
+        img.parentElement.querySelector('.g-hint') && (img.parentElement.querySelector('.g-hint').style.display = 'none');
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  // Keyboard nav
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('modal').classList.contains('open')) return;
+    if (e.key === 'ArrowRight') changePage(1);
+    if (e.key === 'ArrowLeft') changePage(-1);
+    if (e.key === 'Escape') closeBook();
+  });
+</script>
+</body>
+</html>
